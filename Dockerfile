@@ -5,18 +5,13 @@ RUN mkdir app
 
 COPY ../src /app/src
 
-COPY ../locales /app/locales
-
 COPY ../package.json /app
 
 WORKDIR /app
 
 RUN mkdir config
 
-RUN apk --no-cache --update --virtual build-dependencies add \
-    build-base python3 \
-    && npm install -g npm@latest \
-    && npm install --omit=dev \
-    && apk del build-dependencies
+RUN npm install -g npm@latest \
+    && npm install --omit=dev
 
 CMD [ "node", "src/index.js"]
