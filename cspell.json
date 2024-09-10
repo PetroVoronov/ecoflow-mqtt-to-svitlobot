@@ -1,0 +1,26 @@
+{
+    "version": "0.2",
+    "language": "en,uk,ru,de",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "APIURL",
+        "arrowParens",
+        "ecoflow",
+        "genversion",
+        "gramjs",
+        "localstorage",
+        "megagroup",
+        "mqtt",
+        "MTProto",
+        "petrovoronov",
+        "preversion",
+        "sonarjs",
+        "svitlobot",
+        "uuidv",
+        "Voronov"
+    ],
+    "ignoreWords": [],
+    "import": []
+}
