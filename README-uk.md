@@ -1,4 +1,4 @@
-# Ecoflow MQTT to Telegram Alerter
+# Ecoflow MQTT to SvitloBot
 
 [![Docker Image Version](https://img.shields.io/docker/v/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
 [![Docker Pulls](https://img.shields.io/docker/pulls/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
@@ -14,7 +14,6 @@
 ## Функції
 
 - Підключення до брокера MQTT від Ecoflow;
-- Отримання та підключення до клієнта Telegram;
 - Підписка на теми MQTT для моніторингу параметрів вхідної змінної напруги;
 - Журналювання та звітування про зміни статусу вхідної змінної напруги через API СвітлоБота.
 
@@ -100,14 +99,14 @@ node src/index.js -i 60 -k 3 -l 60 -d true
 
 Отже, перше запускання має виглядати як одне з наведеного нижче:
 
-- для роботи як користувача Telegram і встановлення всіх основних параметрів конфігурації в інтерактивному режимі:
+- для роботи і встановлення всіх основних параметрів конфігурації в інтерактивному режимі:
     ```sh
     docker run -it --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
         petrovoronov/ecoflow-mqtt-to-svitlobot:latest
     ```
 
-- для роботи як користувача Telegram і встановлення всіх основних параметрів конфігурації через змінні середовища:
+- для роботи і встановлення всіх основних параметрів конфігурації через змінні середовища:
     ```sh
     docker run -d --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
@@ -165,7 +164,7 @@ services:
 docker-compose up -d
 ```
 
-Це запустить застосунок як інстанцію бота Telegram зі вказаними параметрами конфігурації.
+Це запустить застосунок зі вказаними параметрами конфігурації.
 
 ## Ліцензія
 

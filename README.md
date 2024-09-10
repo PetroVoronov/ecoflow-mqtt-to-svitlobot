@@ -1,4 +1,4 @@
-# Ecoflow MQTT to Telegram Alerter
+# Ecoflow MQTT to SvitloBot
 
 [![Docker Image Version](https://img.shields.io/docker/v/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
 [![Docker Pulls](https://img.shields.io/docker/pulls/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
@@ -49,7 +49,7 @@ docker pull petrovoronov/ecoflow-mqtt-to-svitlobot
         ```
 
 ## Passing the basic configuration parameters
-Basic configuration parameters, including Ecoflow and Telegram credentials can be passed as environment variables:
+Basic configuration parameters, including Ecoflow and SvitloBot credentials can be passed as environment variables:
 
 ```sh
 export ECOFLOW_USERNAME=your_ecoflow_username
@@ -166,7 +166,7 @@ Then, run the following command to start the application:
 docker-compose up -d
 ```
 
-This will start the application as a Telegram bot instance with the specified configuration parameters.
+This will start the application with the specified configuration parameters.
 
 ## License
 
