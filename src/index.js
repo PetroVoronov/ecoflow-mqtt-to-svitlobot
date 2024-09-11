@@ -10,19 +10,19 @@ const axios = require('axios');
 const {v4: uuidv4} = require('uuid');
 const mqtt = require('mqtt');
 
-const storage = new LocalStorage('config'),
-  cache = new Cache({
-    getItem: (key) => storage.getItem(key),
-    setItem: (key, value) => storage.setItem(key, value),
-    removeItem: (key) => storage.removeItem(key),
-  });
+const storage = new LocalStorage('config');
+const cache = new Cache({
+  getItem: (key) => storage.getItem(key),
+  setItem: (key, value) => storage.setItem(key, value),
+  removeItem: (key) => storage.removeItem(key),
+});
 
-let ecoflowUserName = process.env.ECOFLOW_USERNAME || cache.getItem('ecoflowUserName'),
-  ecoflowPassword = process.env.ECOFLOW_PASSWORD || cache.getItem('ecoflowPassword'),
-  ecoflowDeviceSN = process.env.ECOFLOW_DEVICE_SN || cache.getItem('ecoflowDeviceSN'),
-  svitlobotChannelKey = process.env.SVITLOBOT_CHANNEL_KEY || cache.getItem('svitlobotChannelKey'),
-  inputACConnectionState = false,
-  firstPing = true;
+let ecoflowUserName = process.env.ECOFLOW_USERNAME || cache.getItem('ecoflowUserName');
+let ecoflowPassword = process.env.ECOFLOW_PASSWORD || cache.getItem('ecoflowPassword');
+let ecoflowDeviceSN = process.env.ECOFLOW_DEVICE_SN || cache.getItem('ecoflowDeviceSN');
+let svitlobotChannelKey = process.env.SVITLOBOT_CHANNEL_KEY || cache.getItem('svitlobotChannelKey');
+let inputACConnectionState = false;
+let firstPing = true;
 
 if (ecoflowUserName) cache.setItem('ecoflowUserName', ecoflowUserName);
 if (ecoflowPassword) cache.setItem('ecoflowPassword', ecoflowPassword);
@@ -31,25 +31,38 @@ if (svitlobotChannelKey) cache.setItem('svitlobotChannelKey', svitlobotChannelKe
 
 const options = yargs
   .usage('Usage: $0 [options]')
+  .option('e', {
+    alias: 'errors-count-max',
+    describe: 'Maximum number of errors count for the SvitloBot ping',
+    type: 'number',
+    default: 5,
+    min: 1,
+    demandOption: false,
+  })
   .option('i', {
     alias: 'svitlobot-update-interval',
     describe: 'Update status of the svitlobot every X seconds',
     type: 'number',
     default: 60,
-    min:31,
+    min: 31,
     demandOption: false,
   })
   .option('k', {
     alias: 'keep-alive',
-    describe: 'Check if is mqtt client is alive every Y update intervals',
+    describe: 'Check if the MQTT client is alive every Y update intervals',
     type: 'number',
     default: 3,
     min: 1,
     demandOption: false,
   })
+  .option('log-ping', {
+    describe: 'Log the "ping" status of the SvitloBot API',
+    type: 'boolean',
+    demandOption: false,
+  })
   .option('l', {
     alias: 'log-alive-status-interval',
-    describe: 'Log the mqtt client alive status every Z minutes',
+    describe: 'Log the MQTT client alive status every Z minutes',
     type: 'number',
     default: 0,
     demandOption: false,
@@ -67,124 +80,90 @@ const options = yargs
 
 setLogLevel(options.debug ? logLevelDebug : logLevelInfo);
 
-const ecoflowAPIURL = 'https://api.ecoflow.com',
-  ecoflowAPIAuthenticationPath = '/auth/login',
-  ecoflowAPICertificationPath = '/iot-auth/app/certification',
-  headers = {lang: 'en_US', 'content-type': 'application/json'},
-  ecoflowAPI = axios.create({
-    baseURL: ecoflowAPIURL,
-    timeout: 10000,
-  }),
-  svitlobotPingURL= `https://api.svitlobot.in.ua/channelPing?channel_key=${svitlobotChannelKey}`,
-  svitlobotUpdateInterval = options.svitlobotUpdateInterval * 1000,
-  keepAliveInterval = options.keepAlive * svitlobotUpdateInterval,
-  logAliveStatusInterval = options.logAliveStatusInterval * 60 * 1000;
+const ecoflowAPIURL = 'https://api.ecoflow.com';
+const ecoflowAPIAuthenticationPath = '/auth/login';
+const ecoflowAPICertificationPath = '/iot-auth/app/certification';
+const headers = {lang: 'en_US', 'content-type': 'application/json'};
+const ecoflowAPI = axios.create({
+  baseURL: ecoflowAPIURL,
+  timeout: 10000,
+});
+const svitlobotPingURL = `https://api.svitlobot.in.ua/channelPing?channel_key=${svitlobotChannelKey}`;
+const svitlobotUpdateInterval = options.svitlobotUpdateInterval * 1000;
+const keepAliveInterval = options.keepAlive * svitlobotUpdateInterval;
+const logAliveStatusInterval = options.logAliveStatusInterval * 60 * 1000;
 
-const ecoFlowACInput = 'inv.acIn',
-  ecoFlowACInputVoltage = `${ecoFlowACInput}Vol`,
-  ecoFlowACInputFrequency = `${ecoFlowACInput}Freq`,
-  ecoFlowACInputCurrent = `${ecoFlowACInput}Amp`;
 
-let mqttClient = null,
-  mqttOptions = null,
-  ecoflowTopic = '/app/device/property/',
-  lastMQTTMessageTimeStamp = new Date().getTime(),
-  lastAliveInfoMessageTimeStamp = new Date().getTime();
+const ecoFlowTopic = `/app/device/property/${ecoflowDeviceSN}`;
 
-function getEcoFlowCredentials() {
-  return new Promise((resolve, reject) => {
-    if (typeof ecoflowUserName !== 'string' || ecoflowUserName.length === 0
-      || typeof ecoflowPassword !== 'string' || ecoflowPassword.length === 0
-      || typeof ecoflowDeviceSN !== 'string' || ecoflowDeviceSN.length === 0) {
-      const rl = readline.createInterface({
-        input,
-        output,
-      });
-      rl.question('Enter your EcoFlow username: ')
-        .then((username) => {
-          ecoflowUserName = username;
-          cache.setItem('ecoflowUserName', username);
-          rl.question('Enter your EcoFlow password: ')
-            .then((password) => {
-              ecoflowPassword = password;
-              cache.setItem('ecoflowPassword', password);
-              rl.question('Enter your EcoFlow device SN: ')
-                // eslint-disable-next-line sonarjs/no-nested-functions
-                .then((deviceSN) => {
-                  ecoflowDeviceSN = deviceSN;
-                  cache.setItem('ecoflowDeviceSN', deviceSN);
-                  rl.close();
-                  resolve();
-                })
-                // eslint-disable-next-line sonarjs/no-nested-functions
-                .catch((error) => {
-                  logError(`Error: ${error}`);
-                  rl.close();
-                  reject(error);
-                });
-            })
-            .catch((error) => {
-              logError(`Error: ${error}`);
-              rl.close();
-              reject(error);
-            });
-        })
-        .catch((error) => {
-          logError(`Error: ${error}`);
-          rl.close();
-          reject(error);
-        });
-    } else {
-      resolve();
+const ecoFlowACInput = 'inv.acIn';
+const ecoFlowACInputVoltage = `${ecoFlowACInput}Vol`;
+const ecoFlowACInputFrequency = `${ecoFlowACInput}Freq`;
+const ecoFlowACInputCurrent = `${ecoFlowACInput}Amp`;
+
+let mqttClient = null;
+let mqttOptions = null;
+let lastMQTTMessageTimeStamp = new Date().getTime();
+let lastAliveInfoMessageTimeStamp = new Date().getTime();
+
+let svitlobotPingErrorsCount = 0;
+
+async function getEcoFlowCredentials() {
+  let result = ecoflowUserName && ecoflowPassword && ecoflowDeviceSN;
+  if (!result) {
+    const rl = readline.createInterface({input, output});
+    try {
+      ecoflowUserName = await rl.question('Enter your EcoFlow username: ');
+      cache.setItem('ecoflowUserName', ecoflowUserName);
+      ecoflowPassword = await rl.question('Enter your EcoFlow password: ');
+      cache.setItem('ecoflowPassword', ecoflowPassword);
+      ecoflowDeviceSN = await rl.question('Enter your EcoFlow device SN: ');
+      cache.setItem('ecoflowDeviceSN', ecoflowDeviceSN);
+      result = true;
+    } catch (error) {
+      logError(`Error: ${error}`);
+      throw error;
+    } finally {
+      rl.close();
     }
-  });
+  }
+  return result;
 }
 
-function getSvitlobotChannelKey() {
-  return new Promise((resolve, reject) => {
-    if (typeof svitlobotChannelKey !== 'string' || svitlobotChannelKey.length === 0) {
-      const rl = readline.createInterface({
-        input,
-        output,
-      });
-      rl.question('Enter your SvitloBot channel key: ')
-        .then((id) => {
-          cache.setItem('svitlobotChannelKey', id);
-          rl.close();
-          if (typeof svitlobotChannelKey === 'string' && svitlobotChannelKey.length > 0) {
-            resolve();
-          } else {
-            reject(new Error('Invalid SvitloBot channel key!'));
-          }
-        })
-        .catch((error) => {
-          logError(`Error: ${error}`);
-          rl.close();
-          reject(error);
-        });
-    } else {
-      resolve();
+async function getSvitlobotChannelKey() {
+  let result = !!svitlobotChannelKey;
+  if (!result) {
+    const rl = readline.createInterface({input, output});
+    try {
+      svitlobotChannelKey = await rl.question('Enter your SvitloBot channel key: ');
+      cache.setItem('svitlobotChannelKey', svitlobotChannelKey);
+      result = true;
+    } catch (error) {
+      logError(`Error: ${error}`);
+      throw error;
+    } finally {
+      rl.close();
     }
-  });
+  }
+  return result;
 }
 
-
-function gracefulExit() {
-  if (mqttClient !== null && mqttClient.connected === true) {
+function mqttExit() {
+  if (mqttClient && mqttClient.connected) {
     mqttClient.end();
     mqttClient = null;
-    logInfo(`Ecoflow MQTT broker is disconnected!`);
+    logInfo('Ecoflow MQTT broker is disconnected!');
   }
   exit(0);
 }
 
 function mqttSubscribe() {
-  mqttClient.subscribe(ecoflowTopic, (error) => {
+  mqttClient.subscribe(ecoFlowTopic, (error) => {
     if (error) {
       logError(`Ecoflow MQTT subscription error: ${error}`);
-      gracefulExit();
+      mqttExit();
     } else {
-      logInfo(`Ecoflow MQTT subscription is successful. Listening to messages ...`);
+      logInfo('Ecoflow MQTT subscription is successful. Listening to messages ...');
       svitlobotStatusUpdateInit();
     }
   });
@@ -198,41 +177,51 @@ function mqttMessageHandler(topic, message) {
     typeof data.params?.[ecoFlowACInputCurrent] === 'number'
   ) {
     lastMQTTMessageTimeStamp = new Date().getTime();
-    const inputVoltage = data.params[ecoFlowACInputVoltage] / 1000,
-      inputCurrent = data.params[ecoFlowACInputCurrent] / 1000,
-      inputFrequency = data.params[ecoFlowACInputFrequency];
+    const inputVoltage = data.params[ecoFlowACInputVoltage] / 1000;
+    const inputCurrent = data.params[ecoFlowACInputCurrent] / 1000;
+    const inputFrequency = data.params[ecoFlowACInputFrequency];
     inputACConnectionState = inputVoltage > 0 && inputCurrent > 0 && inputFrequency > 0;
-    logDebug(`Ecoflow AC input connection state: ${inputACConnectionState} (voltage: ${inputVoltage} V, current: ${inputCurrent} A, frequency: ${inputFrequency} Hz)`);
-    if (firstPing === true) {
+    logDebug(
+      `Ecoflow AC input connection state: ${inputACConnectionState} (voltage: ${inputVoltage} V, current: ${inputCurrent} A, frequency: ${inputFrequency} Hz)`,
+    );
+    if (firstPing) {
       firstPing = false;
-      if (inputACConnectionState === true) {
-        svitlobotPing();
-      }
+      svitlobotPing();
     }
   }
 }
 
-
 function svitlobotPing() {
-  axios
-    .get(`${svitlobotPingURL}`)
-    .then((response) => {
-      logDebug(`Svitlobot status is updated! Response: ${response.statusText}(${response.status}).`);
-    })
-    .catch((error) => {
-      logError(`Svitlobot error: ${error}`);
-    });
+  if (inputACConnectionState) {
+    axios
+      .get(svitlobotPingURL)
+      .then((response) => {
+        const pingMessage = `Svitlobot status is updated! Response: ${response.statusText}(${response.status}).`;
+        if (options.logPing) {
+          logInfo(pingMessage);
+        } else {
+          logDebug(pingMessage);
+        }
+        svitlobotPingErrorsCount = 0;
+      })
+      .catch((error) => {
+        logError(`Svitlobot error: ${error}`);
+        svitlobotPingErrorsCount++;
+        if (svitlobotPingErrorsCount > options.errorsCountMax) {
+          logError(`Svitlobot ping error count is more than ${options.errorsCountMax}! Exiting ...`);
+          mqttExit();
+        }
+      });
+  }
 }
 
 function svitlobotStatusUpdate() {
   const currentTimeStamp = new Date().getTime();
   if (currentTimeStamp - lastMQTTMessageTimeStamp <= svitlobotUpdateInterval) {
-    if (inputACConnectionState === true) {
-      svitlobotPing();
-    }
+    svitlobotPing();
     if (logAliveStatusInterval > 0 && currentTimeStamp - lastAliveInfoMessageTimeStamp > logAliveStatusInterval) {
       lastAliveInfoMessageTimeStamp = currentTimeStamp;
-      logInfo(`Ecoflow MQTT client is alive!`);
+      logInfo('Ecoflow MQTT client is alive!');
     }
   }
   if (currentTimeStamp - lastMQTTMessageTimeStamp > keepAliveInterval) {
@@ -242,7 +231,7 @@ function svitlobotStatusUpdate() {
 }
 
 function svitlobotStatusUpdateInit() {
-  if (mqttClient !== null) {
+  if (mqttClient) {
     lastMQTTMessageTimeStamp = new Date().getTime();
     setInterval(svitlobotStatusUpdate, svitlobotUpdateInterval);
   }
@@ -252,126 +241,88 @@ function maskString(value) {
   return typeof value === 'string' ? value.substring(0, 3) + '*'.repeat(value.length - 3) : value;
 }
 
-process.on('SIGINT', gracefulExit);
-process.on('SIGTERM', gracefulExit);
+process.on('SIGINT', mqttExit);
+process.on('SIGTERM', mqttExit);
 
-getEcoFlowCredentials()
-  .then(() => {
-    getSvitlobotChannelKey()
-      .then(() => {
-        ecoflowAPI
-          .post(
-            ecoflowAPIAuthenticationPath,
-            {
-              email: ecoflowUserName,
-              password: Buffer.from(ecoflowPassword).toString('base64'),
-              scene: 'IOT_APP',
-              userType: 'ECOFLOW',
-            },
-            {headers: headers},
-          )
-          .then((response) => {
-            logInfo('Ecoflow authentication is successful. Getting certification ...');
-            let token, userId, userName;
-            try {
-              token = response.data.data.token;
-              userId = response.data.data.user.userId;
-              userName = response.data.data.user.name;
-            } catch (error) {
-              throw new Error(`Failed to extract key ${error.message} from response: ${stringify(response)}`);
-            }
-            logDebug(`Ecoflow token: ${maskString(token)}`);
-            logDebug(`Ecoflow userId: ${userId}`);
-            logDebug(`Ecoflow userName: ${userName}`);
-            const headers = {
-              lang: 'en_US',
-              authorization: `Bearer ${token}`,
-            };
-            ecoflowAPI
-              .get(`${ecoflowAPICertificationPath}?userId=${userId}`, {headers: headers})
-              // eslint-disable-next-line sonarjs/no-nested-functions
-              .then((response) => {
-                logInfo('Ecoflow certification is successful. Getting MQTT client ...');
-                let mqttUrl, mqttPort, mqttProtocol, mqttUsername, mqttPassword, mqttClientId;
-                try {
-                  mqttUrl = response.data.data.url;
-                  mqttPort = parseInt(response.data.data.port, 10); // Ensure port is an integer
-                  mqttProtocol = response.data.data.protocol;
-                  mqttUsername = response.data.data.certificateAccount;
-                  mqttPassword = response.data.data.certificatePassword;
-                  // Generate a unique MQTT client ID
-                  mqttClientId = `ANDROID_${uuidv4().toUpperCase()}_${userId}`;
-                } catch (error) {
-                  throw new Error(`Failed to extract key ${error.message} from response: ${stringify(response)}`);
-                }
-                logDebug(`Ecoflow MQTT URL: ${mqttUrl}`);
-                logDebug(`Ecoflow MQTT port: ${mqttPort}`);
-                logDebug(`Ecoflow MQTT protocol: ${mqttProtocol}`);
-                logDebug(`Ecoflow MQTT username: ${mqttUsername}`);
-                logDebug(`Ecoflow MQTT password: ${maskString(mqttPassword)}`);
-                logDebug(`Ecoflow MQTT client ID: ${mqttClientId}`);
-                const connectMQTTUrl = `${mqttProtocol}://${mqttUrl}:${mqttPort}`;
-                mqttOptions = {
-                  clientId: mqttClientId,
-                  clean: true,
-                  connectTimeout: 4000,
-                  username: mqttUsername,
-                  password: mqttPassword,
-                  reconnectPeriod: 1000,
-                  protocol: mqttProtocol,
-                };
-                ecoflowTopic += ecoflowDeviceSN;
-                mqtt
-                  .connectAsync(connectMQTTUrl, mqttOptions)
-                  // eslint-disable-next-line sonarjs/no-nested-functions
-                  .then((client) => {
-                    mqttClient = client;
-                    logInfo('Ecoflow MQTT broker is connected. Subscribing to MQTT topic ...');
-                    mqttClient.on('error', (error) => {
-                      logError(`Ecoflow MQTT broker error: ${error}`);
-                      gracefulExit();
-                    });
-                    mqttClient.on('connect', () => {
-                      logInfo('Ecoflow MQTT broker is connected ...');
-                    });
-                    mqttClient.on('reconnect', () => {
-                      logInfo('Ecoflow MQTT broker is reconnecting ...');
-                    });
-                    mqttClient.on('close', () => {
-                      logInfo('Ecoflow MQTT broker is closed ...');
-                    });
-                    mqttClient.on('offline', () => {
-                      logInfo('Ecoflow MQTT broker is offline ...');
-                    });
-                    mqttClient.on('end', () => {
-                      logInfo('Ecoflow MQTT broker is ended ...');
-                    });
-                    mqttClient.on('message', mqttMessageHandler);
-                    mqttSubscribe();
-                  })
-                  // eslint-disable-next-line sonarjs/no-nested-functions
-                  .catch((error) => {
-                    logError(`Ecoflow MQTT broker connection error: ${error}`);
-                    gracefulExit();
-                  });
-              })
-              // eslint-disable-next-line sonarjs/no-nested-functions
-              .catch((error) => {
-                logError(`Ecoflow certification error: ${error}`);
-                gracefulExit();
-              });
-          })
-          .catch((error) => {
-            logError(`Error: ${error}`);
-            gracefulExit();
-          });
-      })
-      .catch((error) => {
-        logError(`Error: ${error}`);
-        gracefulExit();
+(async () => {
+  try {
+    if ((await getEcoFlowCredentials()) && (await getSvitlobotChannelKey())) {
+      const response = await ecoflowAPI.post(
+        ecoflowAPIAuthenticationPath,
+        {
+          email: ecoflowUserName,
+          password: Buffer.from(ecoflowPassword).toString('base64'),
+          scene: 'IOT_APP',
+          userType: 'ECOFLOW',
+        },
+        {headers},
+      );
+      logInfo('Ecoflow authentication is successful. Getting certification ...');
+      const token = response.data.data.token;
+      const {userId, name: userName} = response.data.data.user;
+      logDebug(`Ecoflow token: ${maskString(token)}`);
+      logDebug(`Ecoflow userId: ${maskString(userId)}`);
+      logDebug(`Ecoflow userName: ${userName}`);
+      const certResponse = await ecoflowAPI.get(`${ecoflowAPICertificationPath}?userId=${userId}`, {
+        headers: {lang: 'en_US', authorization: `Bearer ${token}`},
       });
-  })
-  .catch((error) => {
+      logInfo('Ecoflow certification is successful. Getting MQTT client ...');
+      const {
+        url: mqttUrl,
+        port: mqttPort,
+        protocol: mqttProtocol,
+        certificateAccount: mqttUsername,
+        certificatePassword: mqttPassword,
+      } = certResponse.data.data;
+      const mqttClientId = `ANDROID_${uuidv4().toUpperCase()}_${userId}`;
+      logDebug(`Ecoflow MQTT URL: ${mqttUrl}`);
+      logDebug(`Ecoflow MQTT port: ${mqttPort}`);
+      logDebug(`Ecoflow MQTT protocol: ${mqttProtocol}`);
+      logDebug(`Ecoflow MQTT username: ${mqttUsername}`);
+      logDebug(`Ecoflow MQTT password: ${maskString(mqttPassword)}`);
+      logDebug(`Ecoflow MQTT client ID: ${maskString(mqttClientId)}`);
+      const connectMQTTUrl = `${mqttProtocol}://${mqttUrl}:${mqttPort}`;
+      mqttOptions = {
+        clientId: mqttClientId,
+        clean: true,
+        connectTimeout: 4000,
+        username: mqttUsername,
+        password: mqttPassword,
+        reconnectPeriod: 1000,
+        protocol: mqttProtocol,
+      };
+
+      mqttClient = mqtt.connect(connectMQTTUrl, mqttOptions);
+      mqttClient.on('connect', () => {
+        logInfo('Ecoflow MQTT broker is connected. Subscribing to MQTT topic ...');
+        mqttSubscribe();
+      });
+
+      mqttClient.on('error', (error) => {
+        logError(`Ecoflow MQTT broker error: ${error}`);
+        mqttExit();
+      });
+
+      mqttClient.on('reconnect', () => {
+        logInfo('Ecoflow MQTT broker is reconnecting ...');
+      });
+
+      mqttClient.on('close', () => {
+        logInfo('Ecoflow MQTT broker is closed ...');
+      });
+
+      mqttClient.on('offline', () => {
+        logInfo('Ecoflow MQTT broker is offline ...');
+      });
+
+      mqttClient.on('end', () => {
+        logInfo('Ecoflow MQTT broker is ended ...');
+      });
+
+      mqttClient.on('message', mqttMessageHandler);
+    }
+  } catch (error) {
     logError(`Error: ${error}`);
-    gracefulExit();
-  });
+    mqttExit();
+  }
+})();

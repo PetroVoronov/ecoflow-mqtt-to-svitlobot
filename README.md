@@ -71,10 +71,12 @@ The application can be configured using the following command-line options:
 
 | Option                          | Alias | Description                                                                                     | Type    | Default | Required |
 |---------------------------------|-------|-------------------------------------------------------------------------------------------------|---------|---------|----------|
-| `-i, --svitlobot-update-interval` | `-i`  | Update status of the svitlobot every X seconds                                                  | Number  | `60`    | No       |
-| `-k, --keep-alive`              | `-k`  | Check if the MQTT client is alive every Y update intervals                                      | Number  | `3`     | No       |
-| `-l, --log-alive-status-interval`| `-l`  | Log the MQTT client alive status every Z minutes                                                | Number  | `0`     | No       |
-| `-d, --debug`                   | `-d`  | Debug level of logging                                                                          | Boolean |         | No       |
+| `--errors-count-max`            | `-e`  | Maximum number of errors count for the SvitloBot ping                                           | Number  | `5`     | No       |
+| `--svitlobot-update-interval`   | `-i`  | Update status of the svitlobot every X seconds                                                  | Number  | `60`    | No       |
+| `--keep-alive`                  | `-k`  | Check if the MQTT client is alive every Y update intervals                                      | Number  | `3`     | No       |
+| `--log-ping`                    |       | Log the "ping" status of the SvitloBot API                                                      | Boolean |         | No       |
+| `--log-alive-status-interval`   | `-l`  | Log the MQTT client alive status every Z minutes                                                | Number  | `0`     | No       |
+| `--debug`                       | `-d`  | Debug level of logging                                                                          | Boolean |         | No       |
 
 ## Running the Application
 
