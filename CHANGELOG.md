@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.5...v1.0.6) (2024-09-14)
+
+
+### Continuous Integration
+
+* Update release-please workflow configuration ([6e3dffa](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/6e3dffafcbf6d9af56417c5b35336274ca52b731))
+
 ## [1.0.5](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.4...v1.0.5) (2024-09-14)
 
 
