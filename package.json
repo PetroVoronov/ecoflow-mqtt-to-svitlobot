@@ -1,6 +1,6 @@
 {
   "name": "ecoflow-mqtt-to-svitlobot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A tool to reflect the AC-input status of EcoFlow device to the appropriate SvitloBot address/channel.",
   "main": "src/index.js",
   "keywords": [
@@ -23,8 +23,8 @@
   },
   "scripts": {
     "preversion": "genversion src/version.js --property name,version",
-    "tag" : "git tag -a v$npm_package_version -m \"Version $npm_package_version\"",
-    "tag-push" : "git push origin --tags",
+    "tag": "git tag -a v$npm_package_version -m \"Version $npm_package_version\"",
+    "tag-push": "git push origin --tags",
     "lint": "eslint .",
     "start": "node --env-file=.env src/index.js",
     "debug": "node --env-file=.env src/index.js --debug",
