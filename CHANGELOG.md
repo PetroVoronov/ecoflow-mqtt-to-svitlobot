@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.3...v1.0.4) (2024-09-14)
+
+
+### Miscellaneous Chores
+
+* release 1.0.4 ([9e9d63b](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/9e9d63b7117a20e8d0d9a22ff07a7aaec4576f44))
+
 ## [1.0.3](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.2...v1.0.3) (2024-09-14)
 
 
