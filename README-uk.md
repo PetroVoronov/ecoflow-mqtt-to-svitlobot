@@ -1,5 +1,6 @@
 # Ecoflow MQTT to SvitloBot
 
+[![GitHub release](https://img.shields.io/github/v/release/PetroVoronov/ecoflow-mqtt-to-svitlobot)](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/releases)
 [![Docker Image Version](https://img.shields.io/docker/v/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
 [![Docker Pulls](https://img.shields.io/docker/pulls/petrovoronov/ecoflow-mqtt-to-svitlobot)](https://hub.docker.com/r/petrovoronov/ecoflow-mqtt-to-svitlobot)
 [![GitHub license](https://img.shields.io/github/license/PetroVoronov/ecoflow-mqtt-to-svitlobot)](LICENSE)
