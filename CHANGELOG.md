@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.4...v1.0.5) (2024-09-14)
+
+
+### Bug Fixes
+
+* Update release-please workflow to use 'node' release type ([6c2bf35](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/6c2bf35ba93153c0c84967b803f377a9771da026))
+
 ## [1.0.4](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.3...v1.0.4) (2024-09-14)
 
 
