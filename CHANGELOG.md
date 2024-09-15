@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.8](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.7...v1.0.8) (2024-09-15)
+
+
+### Code Refactoring
+
+* Add version logging on start ([c536af8](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/c536af87ec35113b0ebc2ccef9ea89eb376ee9e5))
+* cache handling to handle null and undefined values ([9109a4c](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/9109a4c9b46c25a2f24abd71eff1921e4c60c561))
+
 ## [1.0.7](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.6...v1.0.7) (2024-09-15)
 
 
