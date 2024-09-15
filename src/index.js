@@ -10,25 +10,6 @@ const axios = require('axios');
 const {v4: uuidv4} = require('uuid');
 const mqtt = require('mqtt');
 
-const storage = new LocalStorage('config');
-const cache = new Cache({
-  getItem: (key) => storage.getItem(key),
-  setItem: (key, value) => storage.setItem(key, value),
-  removeItem: (key) => storage.removeItem(key),
-});
-
-let ecoflowUserName = process.env.ECOFLOW_USERNAME || cache.getItem('ecoflowUserName');
-let ecoflowPassword = process.env.ECOFLOW_PASSWORD || cache.getItem('ecoflowPassword');
-let ecoflowDeviceSN = process.env.ECOFLOW_DEVICE_SN || cache.getItem('ecoflowDeviceSN');
-let svitlobotChannelKey = process.env.SVITLOBOT_CHANNEL_KEY || cache.getItem('svitlobotChannelKey');
-let inputACConnectionState = false;
-let firstPing = true;
-
-if (ecoflowUserName) cache.setItem('ecoflowUserName', ecoflowUserName);
-if (ecoflowPassword) cache.setItem('ecoflowPassword', ecoflowPassword);
-if (ecoflowDeviceSN) cache.setItem('ecoflowDeviceSN', ecoflowDeviceSN);
-if (svitlobotChannelKey) cache.setItem('svitlobotChannelKey', svitlobotChannelKey);
-
 const options = yargs
   .usage('Usage: $0 [options]')
   .option('e', {
@@ -79,6 +60,28 @@ const options = yargs
   .epilog(`${scriptName} v${scriptVersion}`).argv;
 
 setLogLevel(options.debug ? logLevelDebug : logLevelInfo);
+
+logInfo(`Starting ${scriptName} v${scriptVersion} ...`);
+
+const storage = new LocalStorage('config');
+const cache = new Cache({
+  getItem: (key) => storage.getItem(key),
+  setItem: (key, value) => storage.setItem(key, value),
+  removeItem: (key) => storage.removeItem(key),
+});
+
+let ecoflowUserName = process.env.ECOFLOW_USERNAME || cache.getItem('ecoflowUserName');
+let ecoflowPassword = process.env.ECOFLOW_PASSWORD || cache.getItem('ecoflowPassword');
+let ecoflowDeviceSN = process.env.ECOFLOW_DEVICE_SN || cache.getItem('ecoflowDeviceSN');
+let svitlobotChannelKey = process.env.SVITLOBOT_CHANNEL_KEY || cache.getItem('svitlobotChannelKey');
+let inputACConnectionState = false;
+let firstPing = true;
+
+if (ecoflowUserName) cache.setItem('ecoflowUserName', ecoflowUserName);
+if (ecoflowPassword) cache.setItem('ecoflowPassword', ecoflowPassword);
+if (ecoflowDeviceSN) cache.setItem('ecoflowDeviceSN', ecoflowDeviceSN);
+if (svitlobotChannelKey) cache.setItem('svitlobotChannelKey', svitlobotChannelKey);
+
 
 const ecoflowAPIURL = 'https://api.ecoflow.com';
 const ecoflowAPIAuthenticationPath = '/auth/login';
