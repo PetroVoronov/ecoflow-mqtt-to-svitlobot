@@ -5,13 +5,13 @@ RUN mkdir app
 
 COPY ../src /app/src
 
-COPY ../package.json /app
+COPY ../package*.json /app
 
 WORKDIR /app
 
 RUN mkdir config
 
 RUN npm install -g npm@latest \
-    && npm install --omit=dev
+    && npm ci --omit=dev
 
 CMD [ "node", "src/index.js"]

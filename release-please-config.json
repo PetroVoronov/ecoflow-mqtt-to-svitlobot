@@ -5,7 +5,8 @@
     "include-component-in-tag": false,
     "extra-files": [
       "README.md",
-      "README-uk.md"
+      "README-uk.md",
+      "src/version.js"
     ],
     "packages": {
       ".": {}
