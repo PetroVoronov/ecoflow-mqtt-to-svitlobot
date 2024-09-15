@@ -52,14 +52,16 @@ class Cache {
     if (this.items.has(key) === false) {
       if (this.#getItem !== null) {
         result = this.#getItem(key);
-        try {
-          result = JSON.parse(result);
-        // eslint-disable-next-line sonarjs/no-ignored-exceptions
-        } catch (e) {
-          logDebug(`Cache| Error parsing item from storage: key: ${key}, value: ${result}`);
+        if (result !== null && result !== undefined) {
+          try {
+            result = JSON.parse(result);
+          // eslint-disable-next-line sonarjs/no-ignored-exceptions
+          } catch (e) {
+            logDebug(`Cache| Error parsing item from storage: key: ${key}, value: ${result}`);
+          }
         }
         logDebug(`Cache| Get item from storage: key: ${key}, value: ${stringify(result)}`);
-        if (result !== null) {
+        if (result !== null && result !== undefined) {
           this.items.set(key, result);
         }
       }
@@ -116,7 +118,11 @@ class Cache {
     this.items.set(key, value);
     if (this.#setItem !== null) {
       logDebug(`Cache| Set item to storage: key: ${key}, value: ${stringify(value)}`);
-      this.#setItem(key, JSON.stringify(value, null, 1));
+      if (value !== null && value !== undefined) {
+        this.#setItem(key, JSON.stringify(value, null, 1));
+      } else {
+        this.#removeItem(key);
+      }
     }
     this.eventReaction(key, Cache.eventSet, value);
   }
