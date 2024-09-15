@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.7](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.6...v1.0.7) (2024-09-15)
+
+
+### Continuous Integration
+
+* refactor Dockerfile ([4a062c2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/4a062c2b5d525902f12b38c561c065b6c680106b))
+* **release-please:** Make it possible to update `src/version.js` to actual version via `release-please-action` ([4a062c2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/4a062c2b5d525902f12b38c561c065b6c680106b))
+
 ## [1.0.6](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.5...v1.0.6) (2024-09-14)
 
 
