@@ -57,7 +57,7 @@
 
 * Update package-lock.json version to 1.0.2 ([950c688](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/950c6889b848c9bdccae26a31dbd58057db28501))
 
-## [1.0.1](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/initial...v1.0.1) (2024-09-10)
+## 1.0.1 (2024-09-10)
 
 
 ### Features
@@ -71,7 +71,7 @@
 * Refactor README files to update project name and remove Telegram references ([bf13371](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/bf1337164b79d46778c6bc3fabb380cde8c63833))
 * Refactor Dockerfile to optimize dependencies installation ([ada1ff2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/ada1ff2d85526c94702ea0a7016c4ea6ad85eec9))
 
-## [Initial](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/initial...initial) (2024-09-10)
+## 1.0.0 (2024-09-10)
 
 
 ### Miscellaneous Chores
