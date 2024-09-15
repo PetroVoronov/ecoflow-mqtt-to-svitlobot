@@ -48,3 +48,32 @@
 ### Miscellaneous Chores
 
 * release 1.0.3 ([a3b6894](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/a3b6894f20fdf62109eca9893ccebf47e8dbddce))
+
+
+## [1.0.2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.1...v1.0.2) (2024-09-14)
+
+
+### Miscellaneous Chores
+
+* Update package-lock.json version to 1.0.2 ([950c688](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/950c6889b848c9bdccae26a31dbd58057db28501))
+
+## [1.0.1](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/initial...v1.0.1) (2024-09-10)
+
+
+### Features
+
+* Initial code version 1.0.1 ([964e5e6](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/964e5e6f9c8b75f42d9338ad02c37af23bb95cc5))
+
+
+### Code Refactoring
+
+* Refactor code to the usage of async/await in most cases. Simple error handling for SvitloBot API is implemented. Additionally added new command-line option to log SvitloBot ping success results, without enabling the debug. ([04a4828](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/04a48280dca66291e6f9be613f7496661809b137))
+* Refactor README files to update project name and remove Telegram references ([bf13371](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/bf1337164b79d46778c6bc3fabb380cde8c63833))
+* Refactor Dockerfile to optimize dependencies installation ([ada1ff2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/ada1ff2d85526c94702ea0a7016c4ea6ad85eec9))
+
+## [Initial](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/initial...initial) (2024-09-10)
+
+
+### Miscellaneous Chores
+
+* Initial commit ([3f31e05](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/3f31e05e8a66cdd5bf72fa39d18ec9d48d3a42e5))
