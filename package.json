@@ -1,6 +1,6 @@
 {
   "name": "ecoflow-mqtt-to-svitlobot",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A tool to reflect the AC-input status of EcoFlow device to the appropriate SvitloBot address/channel.",
   "main": "src/index.js",
   "keywords": [

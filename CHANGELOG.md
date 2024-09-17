@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0.9](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.8...v1.0.9) (2024-09-17)
+
+
+### Documentation
+
+* Append missed records to CHANGELOG.md ([996abaf](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/996abaf1e274c4fa17ed81d79302c99b0005618d))
+* Rearrange commits between "old" releases ([c534cf6](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/c534cf66479e2637b331efbff37e688dc2ed3fab))
+* Update CHANGELOG.md - cosmetic fixes ([9958e2c](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/9958e2cb71bdb2db0394d3713f2dca8563687cd5))
+
+
+### Bug Fixes
+
+* Secured logger eliminate printing in log the sensitive information, including `DeviceSN`, `ClientId`, `ChannelKey` ([72309dd](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/72309dd2fae69fda000810785f1b546667103f2a))
+
+
+### Code Refactoring
+
+* **cache:** New logger is applied ([72309dd](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/72309dd2fae69fda000810785f1b546667103f2a))
+* Now `logging.js` is refactored and  based on `logform`. ([72309dd](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/72309dd2fae69fda000810785f1b546667103f2a))
+
 ## [1.0.8](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.7...v1.0.8) (2024-09-15)
 
 
