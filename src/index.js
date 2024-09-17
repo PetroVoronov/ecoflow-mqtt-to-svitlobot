@@ -4,7 +4,7 @@ const stringify = require('json-stringify-safe');
 const {LocalStorage} = require('node-localstorage');
 const yargs = require('yargs');
 const {Cache} = require('./modules/cache/Cache');
-const {logLevelInfo, logLevelDebug, setLogLevel, logDebug, logInfo, logWarning, logError} = require('./modules/logging/logging');
+const {securedLogger: log} = require('./modules/logging/logging');
 const {name: scriptName, version: scriptVersion} = require('./version');
 const axios = require('axios');
 const {v4: uuidv4} = require('uuid');
@@ -59,9 +59,13 @@ const options = yargs
   .alias('h', 'help')
   .epilog(`${scriptName} v${scriptVersion}`).argv;
 
-setLogLevel(options.debug ? logLevelDebug : logLevelInfo);
+if (options.debug) {
+  log.setLevel('debug');
+}
 
-logInfo(`Starting ${scriptName} v${scriptVersion} ...`);
+log.appendMaskWord('DeviceSN', 'ClientId', 'ChannelKey');
+
+log.info(`Starting ${scriptName} v${scriptVersion} ...`);
 
 const storage = new LocalStorage('config');
 const cache = new Cache({
@@ -124,7 +128,7 @@ async function getEcoFlowCredentials() {
       cache.setItem('ecoflowDeviceSN', ecoflowDeviceSN);
       result = true;
     } catch (error) {
-      logError(`Error: ${error}`);
+      log.error(`Error: ${error}`);
       throw error;
     } finally {
       rl.close();
@@ -142,7 +146,7 @@ async function getSvitlobotChannelKey() {
       cache.setItem('svitlobotChannelKey', svitlobotChannelKey);
       result = true;
     } catch (error) {
-      logError(`Error: ${error}`);
+      log.error(`Error: ${error}`);
       throw error;
     } finally {
       rl.close();
@@ -155,7 +159,7 @@ function mqttExit() {
   if (mqttClient && mqttClient.connected) {
     mqttClient.end();
     mqttClient = null;
-    logInfo('Ecoflow MQTT broker is disconnected!');
+    log.info('Ecoflow MQTT broker is disconnected!');
   }
   exit(0);
 }
@@ -163,10 +167,10 @@ function mqttExit() {
 function mqttSubscribe() {
   mqttClient.subscribe(ecoFlowTopic, (error) => {
     if (error) {
-      logError(`Ecoflow MQTT subscription error: ${error}`);
+      log.error(`Ecoflow MQTT subscription error: ${error}`);
       mqttExit();
     } else {
-      logInfo('Ecoflow MQTT subscription is successful. Listening to messages ...');
+      log.info('Ecoflow MQTT subscription is successful. Listening to messages ...');
       svitlobotStatusUpdateInit();
     }
   });
@@ -184,7 +188,7 @@ function mqttMessageHandler(topic, message) {
     const inputCurrent = data.params[ecoFlowACInputCurrent] / 1000;
     const inputFrequency = data.params[ecoFlowACInputFrequency];
     inputACConnectionState = inputVoltage > 0 && inputCurrent > 0 && inputFrequency > 0;
-    logDebug(
+    log.debug(
       `Ecoflow AC input connection state: ${inputACConnectionState} (voltage: ${inputVoltage} V, current: ${inputCurrent} A, frequency: ${inputFrequency} Hz)`,
     );
     if (firstPing) {
@@ -201,17 +205,17 @@ function svitlobotPing() {
       .then((response) => {
         const pingMessage = `Svitlobot status is updated! Response: ${response.statusText}(${response.status}).`;
         if (options.logPing) {
-          logInfo(pingMessage);
+          log.info(pingMessage);
         } else {
-          logDebug(pingMessage);
+          log.debug(pingMessage);
         }
         svitlobotPingErrorsCount = 0;
       })
       .catch((error) => {
-        logError(`Svitlobot error: ${error}`);
+        log.error(`Svitlobot error: ${error}`);
         svitlobotPingErrorsCount++;
         if (svitlobotPingErrorsCount > options.errorsCountMax) {
-          logError(`Svitlobot ping error count is more than ${options.errorsCountMax}! Exiting ...`);
+          log.error(`Svitlobot ping error count is more than ${options.errorsCountMax}! Exiting ...`);
           mqttExit();
         }
       });
@@ -224,11 +228,11 @@ function svitlobotStatusUpdate() {
     svitlobotPing();
     if (logAliveStatusInterval > 0 && currentTimeStamp - lastAliveInfoMessageTimeStamp > logAliveStatusInterval) {
       lastAliveInfoMessageTimeStamp = currentTimeStamp;
-      logInfo('Ecoflow MQTT client is alive!');
+      log.info('Ecoflow MQTT client is alive!');
     }
   }
   if (currentTimeStamp - lastMQTTMessageTimeStamp > keepAliveInterval) {
-    logWarning(`Ecoflow MQTT client is not alive for ${options.svitlobotUpdateInterval * options.keepAlive} seconds!`);
+    log.warn(`Ecoflow MQTT client is not alive for ${options.svitlobotUpdateInterval * options.keepAlive} seconds!`);
     mqttClient.reconnect();
   }
 }
@@ -260,16 +264,16 @@ process.on('SIGTERM', mqttExit);
         },
         {headers},
       );
-      logInfo('Ecoflow authentication is successful. Getting certification ...');
+      log.info('Ecoflow authentication is successful. Getting certification ...');
       const token = response.data.data.token;
       const {userId, name: userName} = response.data.data.user;
-      logDebug(`Ecoflow token: ${maskString(token)}`);
-      logDebug(`Ecoflow userId: ${maskString(userId)}`);
-      logDebug(`Ecoflow userName: ${userName}`);
+      log.debug(`Ecoflow token:`, {token});
+      log.debug(`Ecoflow userId:`, {userId});
+      log.debug(`Ecoflow userName:`, {userName});
       const certResponse = await ecoflowAPI.get(`${ecoflowAPICertificationPath}?userId=${userId}`, {
         headers: {lang: 'en_US', authorization: `Bearer ${token}`},
       });
-      logInfo('Ecoflow certification is successful. Getting MQTT client ...');
+      log.info('Ecoflow certification is successful. Getting MQTT client ...');
       const {
         url: mqttUrl,
         port: mqttPort,
@@ -278,12 +282,12 @@ process.on('SIGTERM', mqttExit);
         certificatePassword: mqttPassword,
       } = certResponse.data.data;
       const mqttClientId = `ANDROID_${uuidv4().toUpperCase()}_${userId}`;
-      logDebug(`Ecoflow MQTT URL: ${mqttUrl}`);
-      logDebug(`Ecoflow MQTT port: ${mqttPort}`);
-      logDebug(`Ecoflow MQTT protocol: ${mqttProtocol}`);
-      logDebug(`Ecoflow MQTT username: ${mqttUsername}`);
-      logDebug(`Ecoflow MQTT password: ${maskString(mqttPassword)}`);
-      logDebug(`Ecoflow MQTT client ID: ${maskString(mqttClientId)}`);
+      log.debug(`Ecoflow MQTT URL: ${mqttUrl}`);
+      log.debug(`Ecoflow MQTT port: ${mqttPort}`);
+      log.debug(`Ecoflow MQTT protocol: ${mqttProtocol}`);
+      log.debug(`Ecoflow MQTT username:`, {mqttUsername});
+      log.debug(`Ecoflow MQTT password:`, {mqttPassword});
+      log.debug(`Ecoflow MQTT client ID:`, {mqttClientId});
       const connectMQTTUrl = `${mqttProtocol}://${mqttUrl}:${mqttPort}`;
       mqttOptions = {
         clientId: mqttClientId,
@@ -297,35 +301,35 @@ process.on('SIGTERM', mqttExit);
 
       mqttClient = mqtt.connect(connectMQTTUrl, mqttOptions);
       mqttClient.on('connect', () => {
-        logInfo('Ecoflow MQTT broker is connected. Subscribing to MQTT topic ...');
+        log.info('Ecoflow MQTT broker is connected. Subscribing to MQTT topic ...');
         mqttSubscribe();
       });
 
       mqttClient.on('error', (error) => {
-        logError(`Ecoflow MQTT broker error: ${error}`);
+        log.error(`Ecoflow MQTT broker error: ${error}`);
         mqttExit();
       });
 
       mqttClient.on('reconnect', () => {
-        logInfo('Ecoflow MQTT broker is reconnecting ...');
+        log.info('Ecoflow MQTT broker is reconnecting ...');
       });
 
       mqttClient.on('close', () => {
-        logInfo('Ecoflow MQTT broker is closed ...');
+        log.info('Ecoflow MQTT broker is closed ...');
       });
 
       mqttClient.on('offline', () => {
-        logInfo('Ecoflow MQTT broker is offline ...');
+        log.info('Ecoflow MQTT broker is offline ...');
       });
 
       mqttClient.on('end', () => {
-        logInfo('Ecoflow MQTT broker is ended ...');
+        log.info('Ecoflow MQTT broker is ended ...');
       });
 
       mqttClient.on('message', mqttMessageHandler);
     }
   } catch (error) {
-    logError(`Error: ${error}`);
+    log.error(`Error: ${error}`);
     mqttExit();
   }
 })();
