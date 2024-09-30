@@ -70,7 +70,7 @@ So you will be asked to enter the parameters only once (or you should pass it as
 
 The application can be configured using the following command-line options:
 
-| Option                          | Alias | Description                                                                                     | Type    | Default | Required |
+| Option                          | Short | Description                                                                                     | Type    | Default | Required |
 |---------------------------------|-------|-------------------------------------------------------------------------------------------------|---------|---------|----------|
 | `--errors-count-max`            | `-e`  | Maximum number of errors count for the SvitloBot ping                                           | Number  | `5`     | No       |
 | `--svitlobot-update-interval`   | `-i`  | Update status of the svitlobot every X seconds                                                  | Number  | `60`    | No       |
