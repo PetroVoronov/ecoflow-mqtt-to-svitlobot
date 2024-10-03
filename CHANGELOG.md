@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.1.0](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.9...v1.1.0) (2024-10-03)
+
+
+### Features
+
+* Added authentication via access and secret keys pair, as alternative to user and password ([a9404e0](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/a9404e0360f518348704e8a9705f89617d9aa101))
+
+
+### Code Refactoring
+
+* **command-line:** Added `--api-url` - to change the address of EcoFlow API, -`-test-only` - to work without real ping of SvitloBot API, and some keys related to authentication ([a9404e0](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/a9404e0360f518348704e8a9705f89617d9aa101))
+* **docker:** The Dockerfile is updated to use "ENTRYPOINT" instead of "CMD" for running the application. **Please take it in account**, if you use docker and command-line parameters ([a9404e0](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/a9404e0360f518348704e8a9705f89617d9aa101))
+
+
+### Build System
+
+* **deps-dev:** bump @babel/core from 7.25.2 to 7.25.7 ([a597eb2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/a597eb21b26efa078eefd97d84786640553d8ae1))
+* **deps-dev:** bump @babel/eslint-parser from 7.25.1 to 7.25.7 ([fc90e87](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/fc90e8716a0204dd668152f91e31aabed941d626))
+* **deps-dev:** bump eslint-plugin-sonarjs from 2.0.2 to 2.0.3 ([172f2d3](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/172f2d3a1b113aa6365d50ed8b00aeeeeb93d087))
+* **deps-dev:** bump globals from 15.9.0 to 15.10.0 ([084a2c4](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/084a2c4e7e38354e6d26cc30d863bf8f46a83c0b))
+
+
+### Continuous Integration
+
+* change orders of sections to generate CHANGELOG.md ([41e891e](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/41e891ed002ce155c398e08cc4211003cd20987c))
+* Update repo description in deploy_docker_on_tag.yml ([8badc4d](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/8badc4d8970fdb235f1073f9e2ca66b8e77463bf))
+
+
+### Documentation
+
+* Small cosmetic fix ([0cf191f](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/0cf191fd2dbca70d735e599f708fb34143464918))
+
 ## [1.0.9](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.8...v1.0.9) (2024-09-17)
 
 
