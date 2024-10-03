@@ -24,7 +24,7 @@ This project integrates Ecoflow MQTT broker with SvitloBot API and report the pr
 
 - Ecoflow device: Tested with Ecoflow DELTA Pro. Should work with other Ecoflow devices that support MQTT. (Please refer on [EcoFlow to Prometheus exporter](https://github.com/berezhinskiy/ecoflow_exporter)).
 - Node.js or Docker installed.
-- Ecoflow device (serial number) and developer credentials from [EcoFlow Developer Platform](https://developer.ecoflow.com/).
+- Ecoflow device (serial number) and developer access and secret keys pair or credentials from [EcoFlow Developer Platform](https://developer.ecoflow.com/).
 - Registered [SvitloBot](https://svitlobot.in.ua/) Channel and Channel Key.
 
 
@@ -58,7 +58,14 @@ export ECOFLOW_PASSWORD=your_ecoflow_password
 export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
 export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
 ```
+or
 
+```sh
+export ECOFLOW_ACCESS_KEY=your_ecoflow_access_key
+export ECOFLOW_SECRET_KEY=your_ecoflow_secret_key
+export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+```
 or you can skip it and application will ask you to enter it interactively.
 
 After first run these parameters will be stored in the `config` directory and will be used for the next runs.
@@ -70,14 +77,18 @@ So you will be asked to enter the parameters only once (or you should pass it as
 
 The application can be configured using the following command-line options:
 
-| Option                          | Short | Description                                                                                     | Type    | Default | Required |
-|---------------------------------|-------|-------------------------------------------------------------------------------------------------|---------|---------|----------|
-| `--errors-count-max`            | `-e`  | Maximum number of errors count for the SvitloBot ping                                           | Number  | `5`     | No       |
-| `--svitlobot-update-interval`   | `-i`  | Update status of the svitlobot every X seconds                                                  | Number  | `60`    | No       |
-| `--keep-alive`                  | `-k`  | Check if the MQTT client is alive every Y update intervals                                      | Number  | `3`     | No       |
-| `--log-ping`                    |       | Log the "ping" status of the SvitloBot API                                                      | Boolean |         | No       |
-| `--log-alive-status-interval`   | `-l`  | Log the MQTT client alive status every Z minutes                                                | Number  | `0`     | No       |
-| `--debug`                       | `-d`  | Debug level of logging                                                                          | Boolean |         | No       |
+| Option                          | Short | Description                                       | Type    | Default | Required |
+|---------------------------------|-------|---------------------------------------------------|---------|---------|----------|
+| `--api-url`                     | `-a`  | URL of the Ecoflow API                            | String  | `https://api.ecoflow.com` | No  |
+| `--svitlobot-update-interval`   | `-i`  | Update status of the svitlobot every X seconds    | Number  | `60`    | No       |
+| `--keep-alive`                  | `-k`  | Check if the MQTT client is alive every Y update intervals  | Number  | `3`     | No       |
+| `--log-ping`                    |       | Log the "ping" status of the SvitloBot API        | Boolean | `false` | No       |
+| `--log-alive-status-interval`   | `-l`  | Log the MQTT client alive status every Z minutes  | Number  | `0`     | No       |
+| `--errors-count-max`            | `-e`  | Maximum number of errors count for the SvitloBot ping | Number  | `5`     | No       |
+| `--auth-via-access-key`         |       | Use the access key for the Ecoflow API authentication | Boolean | `false` | No       |
+| `--auth-via-username-password`  |       | Use the username and password for the Ecoflow API authentication | Boolean | `false` | No       |
+| `--test-only`                   | `-t`  | Run without sending messages to the SvitloBot API | Boolean | `false` | No       |
+| `--debug`                       | `-d`  | Debug level of logging                            | Boolean | `false` | No       |
 
 ## Running the Application
 
@@ -104,14 +115,15 @@ You can map in on any local directory on the host system or docker volume.
 #### Docker first run
 
 So, the first run should be like one of the following:
-- to set all basic configuration parameters interactively:
+- to set all basic configuration parameters interactively, but with some additional command-line options:
     ```sh
     docker run -it --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
-        petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+        petrovoronov/ecoflow-mqtt-to-svitlobot:latest \
+        --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
     ```
 
-- to set all basic configuration parameters as environment variables:
+- to set basic configuration parameters as environment variables to authenticate by username and password:
     ```sh
     docker run -d --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
@@ -121,6 +133,17 @@ So, the first run should be like one of the following:
         -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
         petrovoronov/ecoflow-mqtt-to-svitlobot:latest
     ```
+- to set basic configuration parameters as environment variables to authenticate by access key:
+    ```sh
+    docker run -d --name ecoflow-mqtt-to-svitlobot \
+        -v /path/to/your/config:/app/config \
+        -e ECOFLOW_ACCESS_KEY=your_ecoflow_access_key \
+        -e ECOFLOW_SECRET_KEY=your_ecoflow_secret_key \
+        -e ECOFLOW_DEVICE_SN=your_ecoflow_device_sn \
+        -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
+        petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+    ```
+
 
 **Important notice: pass all later needed command-line options at first run!***
 
@@ -146,20 +169,38 @@ docker stop ecoflow-mqtt-to-svitlobot
 
 To run the application using Docker Compose, create a `docker-compose.yml` file with the following content:
 
-```yaml
-version: '3'
-services:
-    ecoflow-mqtt-to-svitlobot:
-        image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
-        volumes:
-            - /path/to/your/config:/app/config
-        environment:
-            - ECOFLOW_USERNAME=your_ecoflow_username
-            - ECOFLOW_PASSWORD=your_ecoflow_password
-            - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
-            - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
-        command: node src/index.js -i 60 -k 3 -l 60
-```
+- to authenticate by username and password:
+
+    ```yaml
+    version: '3'
+    services:
+        ecoflow-mqtt-to-svitlobot:
+            image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+            volumes:
+                - /path/to/your/config:/app/config
+            environment:
+                - ECOFLOW_USERNAME=your_ecoflow_username
+                - ECOFLOW_PASSWORD=your_ecoflow_password
+                - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+                - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+            command: --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
+    ```
+- to authenticate by access key:
+
+    ```yaml
+    version: '3'
+    services:
+        ecoflow-mqtt-to-svitlobot:
+            image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+            volumes:
+                - /path/to/your/config:/app/config
+            environment:
+                - ECOFLOW_ACCESS_KEY=your_ecoflow_access_key
+                - ECOFLOW_SECRET_KEY=your_ecoflow_secret_key
+                - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+                - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+            command: --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
+    ```
 
 Replace `/path/to/your/config` with the actual paths on your system where you want to store the application config.
 

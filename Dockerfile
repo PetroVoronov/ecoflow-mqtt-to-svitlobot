@@ -14,4 +14,5 @@ RUN mkdir config
 RUN npm install -g npm@latest \
     && npm ci --omit=dev
 
-CMD [ "node", "src/index.js"]
+ENTRYPOINT [ "node", "src/index.js" ]
+CMD []

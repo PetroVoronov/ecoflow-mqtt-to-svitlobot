@@ -22,7 +22,7 @@
 
 - Пристрій Ecoflow: протестовано з Ecoflow DELTA Pro. Має працювати з іншими пристроями Ecoflow, які підтримують MQTT. (Будь ласка, зверніться до [EcoFlow to Prometheus exporter](https://github.com/berezhinskiy/ecoflow_exporter)).
 - Встановлений Node.js або Docker.
-- Пристрій Ecoflow (серійний номер) та облікові дані розробника з [EcoFlow Developer Platform](https://developer.ecoflow.com/).
+- Пристрій Ecoflow (серійний номер) та ключ доступа з секретним ключом або облікові дані розробника з [EcoFlow Developer Platform](https://developer.ecoflow.com/).
 - Зареєстрований канал [SvitloBot](https://svitlobot.in.ua/) та ключ каналу.
 
 ## Встановлення
@@ -56,6 +56,15 @@ export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
 export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
 ```
 
+або
+
+```sh
+export ECOFLOW_ACCESS_KEY=your_ecoflow_access_key
+export ECOFLOW_SECRET_KEY=your_ecoflow_secret_key
+export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+```
+
 або ви можете пропустити цей крок, і програма попросить вас ввести їх інтерактивно.
 
 Після першого запуску ці параметри будуть збережені в каталозі `config` і будуть використовуватися для наступних запусків.
@@ -67,14 +76,18 @@ export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
 
 Програму можна налаштувати за допомогою таких параметрів командного рядка:
 
-| Параметр                        | Скорочення | Опис                                                                                           | Тип     | Значення за замовчуванням | Обов'язковий |
-|---------------------------------|------------|------------------------------------------------------------------------------------------------|---------|---------------------------|--------------|
-| `--errors-count-max`            | `-e`       | Максимальна кількість помилок для пінгу SvitloBot                                               | Number  | `5`                       | Ні           |
-| `--svitlobot-update-interval`   | `-i`       | Оновлювати статус SvitloBot кожні X секунд                                                     | Number  | `60`                      | Ні           |
-| `--keep-alive`                  | `-k`       | Перевіряти, чи клієнт MQTT живий кожні Y інтервали оновлення                                    | Number  | `3`                       | Ні           |
-| `--log-ping`                    |            | Логувати статус "ping" API SvitloBot                                                           | Boolean |                           | Ні           |
-| `--log-alive-status-interval`   | `-l`       | Логувати статус живого клієнта MQTT кожні Z хвилин                                             | Number  | `0`                       | Ні           |
-| `--debug`                       | `-d`       | Рівень налагодження логування                                                                   | Boolean |                           | Ні           |
+| Опція                           | Скорочення | Опис                                         | Тип     | За замовчуванням | Обов'язково |
+|---------------------------------|------------|----------------------------------------------|---------|------------------|-------------|
+| `--api-url`                     | `-a`       | URL API Ecoflow                              | Рядок   | `https://api.ecoflow.com` | Ні          |
+| `--svitlobot-update-interval`   | `-i`       | Оновлювати статус SvitloBot кожні X секунд   | Число   | `60`             | Ні          |
+| `--keep-alive`                  | `-k`       | Перевіряти, чи клієнт MQTT живий кожні Y інтервали оновлення | Число   | `3`              | Ні          |
+| `--log-ping`                    |            | Логувати статус "ping" API SvitloBot         | Булевий | `false`          | Ні          |
+| `--log-alive-status-interval`   | `-l`       | Логувати статус живого клієнта MQTT кожні Z хвилин | Число   | `0`              | Ні          |
+| `--errors-count-max`            | `-e`       | Максимальна кількість помилок для ping SvitloBot | Число   | `5`              | Ні          |
+| `--auth-via-access-key`         |            | Використовувати ключ доступу для аутентифікації API Ecoflow | Булевий | `false`          | Ні          |
+| `--auth-via-username-password`  |            | Використовувати ім'я користувача та пароль для аутентифікації API Ecoflow | Булевий | `false`          | Ні          |
+| `--test-only`                   | `-t`       | Запускати без надсилання повідомлень до API SvitloBot | Булевий | `false`          | Ні          |
+| `--debug`                       | `-d`       | Рівень налагодження логування                | Булевий | `false`          | Ні          |
 
 ## Запуск програми
 
@@ -102,19 +115,31 @@ node src/index.js -i 60 -k 3 -l 60 -d true
 
 Отже, перше запускання має виглядати як одне з наведеного нижче:
 
-- для роботи і встановлення всіх основних параметрів конфігурації в інтерактивному режимі:
+- для роботи і встановлення всіх основних параметрів конфігурації в інтерактивному режимі, однак за додатковими параметрами командного рядка:
     ```sh
     docker run -it --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
-        petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+        petrovoronov/ecoflow-mqtt-to-svitlobot:latest\
+        --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
     ```
 
-- для роботи і встановлення всіх основних параметрів конфігурації через змінні середовища:
+- для роботи і встановлення основних параметрів конфігурації через змінні середовища для аутентифікації за ім'ям користувача та паролем:
     ```sh
     docker run -d --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
         -e ECOFLOW_USERNAME=your_ecoflow_username \
         -e ECOFLOW_PASSWORD=your_ecoflow_password \
+        -e ECOFLOW_DEVICE_SN=your_ecoflow_device_sn \
+        -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
+        petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+    ```
+
+- для роботи і встановлення основних параметрів конфігурації через змінні середовища для аутентифікації за ключем доступу:
+    ```sh
+    docker run -d --name ecoflow-mqtt-to-svitlobot \
+        -v /path/to/your/config:/app/config \
+        -e ECOFLOW_ACCESS_KEY=your_ecoflow_access_key \
+        -e ECOFLOW_SECRET_KEY=your_ecoflow_secret_key \
         -e ECOFLOW_DEVICE_SN=your_ecoflow_device_sn \
         -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
         petrovoronov/ecoflow-mqtt-to-svitlobot:latest
@@ -144,20 +169,39 @@ docker stop ecoflow-mqtt-to-svitlobot
 
 Щоб запустити застосунок за допомогою Docker Compose, створіть файл `docker-compose.yml` з наступним вмістом:
 
-```yaml
-version: '3'
-services:
-    ecoflow-mqtt-to-svitlobot:
-        image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
-        volumes:
-            - /path/to/your/config:/app/config
-        environment:
-            - ECOFLOW_USERNAME=your_ecoflow_username
-            - ECOFLOW_PASSWORD=your_ecoflow_password
-            - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
-            - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
-        command: node src/index.js -i 60 -k 3 -l 60
-```
+- для аутентифікації за ім'ям користувача та паролем:
+
+    ```yaml
+    version: '3'
+    services:
+        ecoflow-mqtt-to-svitlobot:
+            image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+            volumes:
+                - /path/to/your/config:/app/config
+            environment:
+                - ECOFLOW_USERNAME=your_ecoflow_username
+                - ECOFLOW_PASSWORD=your_ecoflow_password
+                - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+                - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+            command: --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
+    ```
+
+- для аутентифікації за ключем доступу:
+
+    ```yaml
+    version: '3'
+    services:
+        ecoflow-mqtt-to-svitlobot:
+            image: petrovoronov/ecoflow-mqtt-to-svitlobot:latest
+            volumes:
+                - /path/to/your/config:/app/config
+            environment:
+                - ECOFLOW_ACCESS_KEY=your_ecoflow_access_key
+                - ECOFLOW_SECRET_KEY=your_ecoflow_secret_key
+                - ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
+                - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
+            command: --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
+    ```
 
 Замініть `/path/to/your/config` на фактичний шлях на вашій системі, де ви хочете зберігати дані застосунку.
 

@@ -14,13 +14,15 @@
         "logform",
         "megagroup",
         "mqtt",
+        "mqtts",
         "MTProto",
         "petrovoronov",
         "preversion",
         "sonarjs",
         "svitlobot",
         "uuidv",
-        "Voronov"
+        "Voronov",
+        "Логувати"
     ],
     "ignoreWords": [],
     "import": []
