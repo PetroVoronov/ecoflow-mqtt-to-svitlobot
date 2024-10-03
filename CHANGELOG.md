@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.0...v1.1.1) (2024-10-03)
+
+
+### Bug Fixes
+
+* Mistyping in processing API Url command line switch ([da98cfa](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/da98cfa8ef68df20b7183c283e51c27eaa854643))
+
+
+### Code Refactoring
+
+* add command line parameter logging on start ([da98cfa](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/da98cfa8ef68df20b7183c283e51c27eaa854643))
+
 ## [1.1.0](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.0.9...v1.1.0) (2024-10-03)
 
 
