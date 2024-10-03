@@ -93,9 +93,21 @@ if (options.debug) {
   log.setLevel('debug');
 }
 
+const ecoflowAPIURL = options.apiUrl || ecoflowAPIURLDefault;
+
 log.appendMaskWord('DeviceSN', 'ClientId', 'ChannelKey');
 
 log.info(`Starting ${scriptName} v${scriptVersion} ...`);
+log.info(`Ecoflow API URL: ${ecoflowAPIURL}`);
+log.info(`Svitlobot update interval: ${options.svitlobotUpdateInterval} seconds`);
+log.info(`Keep alive interval: ${options.keepAlive * options.svitlobotUpdateInterval} seconds`);
+log.info(`Log alive status interval: ${options.logAliveStatusInterval} minutes`);
+log.info(`Errors count max: ${options.errorsCountMax}`);
+log.info(`Authenticate via access key: ${options.authViaAccessKey}`);
+log.info(`Authenticate via username: ${options.authViaUsername}`);
+log.info(`Test only: ${options.testOnly}`);
+log.info(`Debug: ${options.debug}`);
+
 
 const storage = new LocalStorage('config');
 const cache = new Cache({
@@ -126,7 +138,6 @@ if (svitlobotChannelKey) cache.setItem('svitlobotChannelKey', svitlobotChannelKe
 if (mqttClientIdPrefix) cache.setItem('mqttClientIdPrefix', mqttClientIdPrefix);
 
 
-const ecoflowAPIURL = options.apiURL || ecoflowAPIURLDefault;
 const ecoflowAPIAuthenticationPath = '/auth/login';
 const ecoflowAPIAccessCertificationPath = '/iot-open/sign/certification';
 const ecoflowAPIUserCertificationPath = '/iot-auth/app/certification';
@@ -380,6 +391,7 @@ function processResponse(response, stage) {
 
 process.on('SIGINT', mqttExit);
 process.on('SIGTERM', mqttExit);
+
 
 (async () => {
   try {
