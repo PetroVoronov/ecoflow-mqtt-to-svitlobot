@@ -27,7 +27,6 @@ This project integrates Ecoflow MQTT broker with SvitloBot API and report the pr
 - Ecoflow device (serial number) and developer access and secret keys pair or credentials from [EcoFlow Developer Platform](https://developer.ecoflow.com/).
 - Registered [SvitloBot](https://svitlobot.in.ua/) Channel and Channel Key.
 
-
 ## Installation
 
 ### Docker image installation
@@ -39,17 +38,20 @@ docker pull petrovoronov/ecoflow-mqtt-to-svitlobot
 ### Node.js installation from the source code
 
    1. Clone the repository:
+
         ```sh
         git clone https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot.git
         cd ecoflow-mqtt-to-svitlobot
         ```
 
    2. Install dependencies:
+
         ```sh
         npm install
         ```
 
 ## Passing the basic configuration parameters
+
 Basic configuration parameters, including Ecoflow and SvitloBot credentials can be passed as environment variables:
 
 ```sh
@@ -58,6 +60,7 @@ export ECOFLOW_PASSWORD=your_ecoflow_password
 export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
 export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
 ```
+
 or
 
 ```sh
@@ -66,6 +69,7 @@ export ECOFLOW_SECRET_KEY=your_ecoflow_secret_key
 export ECOFLOW_DEVICE_SN=your_ecoflow_device_sn
 export SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
 ```
+
 or you can skip it and application will ask you to enter it interactively.
 
 After first run these parameters will be stored in the `config` directory and will be used for the next runs.
@@ -109,13 +113,16 @@ Due to the limitations of the Docker environment, the application will not be ab
 #### Docker Volumes
 
 **You must to map the application data directory to the container:**
+
 - `/app/config` - for the application configurations. Mandatory for the mapping!
 You can map in on any local directory on the host system or docker volume.
 
 #### Docker first run
 
 So, the first run should be like one of the following:
+
 - to set all basic configuration parameters interactively, but with some additional command-line options:
+
     ```sh
     docker run -it --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
@@ -124,6 +131,7 @@ So, the first run should be like one of the following:
     ```
 
 - to set basic configuration parameters as environment variables to authenticate by username and password:
+
     ```sh
     docker run -d --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
@@ -133,7 +141,9 @@ So, the first run should be like one of the following:
         -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
         petrovoronov/ecoflow-mqtt-to-svitlobot:latest
     ```
+
 - to set basic configuration parameters as environment variables to authenticate by access key:
+
     ```sh
     docker run -d --name ecoflow-mqtt-to-svitlobot \
         -v /path/to/your/config:/app/config \
@@ -143,7 +153,6 @@ So, the first run should be like one of the following:
         -e SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key \
         petrovoronov/ecoflow-mqtt-to-svitlobot:latest
     ```
-
 
 **Important notice: pass all later needed command-line options at first run!***
 
@@ -185,6 +194,7 @@ To run the application using Docker Compose, create a `docker-compose.yml` file 
                 - SVITLOBOT_CHANNEL_KEY=your_svitlobot_channel_key
             command: --svitlobot-update-interval 60 --keep-alive 3 --log-alive-status-interval 60
     ```
+
 - to authenticate by access key:
 
     ```yaml
