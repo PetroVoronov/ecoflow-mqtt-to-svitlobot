@@ -2,16 +2,13 @@
 
 ## [1.1.2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.1...v1.1.2) (2024-10-07)
 
-
 ### Continuous Integration
 
 * **release-please:** run CHANGELOG.md through markdownlint-cli2 on PR's ([f41a536](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/f41a5366dfd23dd170542af9d63ea2f7c95480d9))
 
-
 ### Miscellaneous Chores
 
 * **dev:** Add markdownlint-cli2 to improve format of documentation (README, CHANGELOG) ([f41a536](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/f41a5366dfd23dd170542af9d63ea2f7c95480d9))
-
 
 ### Documentation
 
