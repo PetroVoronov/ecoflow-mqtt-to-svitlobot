@@ -2,7 +2,6 @@
 
 ## [1.1.3](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.2...v1.1.3) (2024-10-16)
 
-
 ### Build System
 
 * **deps-dev:** bump @babel/core from 7.25.7 to 7.25.8 ([f4ed1a2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/f4ed1a2ae9805316cae9855b0cdf8e8d237c28dc))
