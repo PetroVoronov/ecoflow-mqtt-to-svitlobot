@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.2...v1.1.3) (2024-10-16)
+
+### Build System
+
+* **deps-dev:** bump @babel/core from 7.25.7 to 7.25.8 ([f4ed1a2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/f4ed1a2ae9805316cae9855b0cdf8e8d237c28dc))
+* **deps-dev:** bump @babel/eslint-parser from 7.25.7 to 7.25.8 ([8080140](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/8080140bc4d3c0dc3d1f3a092ce117c7e6ec28b5))
+* **deps-dev:** bump globals from 15.10.0 to 15.11.0 ([3d0797c](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/3d0797c3c5c7bcb1dec2a98159295e72b75f8863))
+
 ## [1.1.2](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.1...v1.1.2) (2024-10-07)
 
 ### Continuous Integration
