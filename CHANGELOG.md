@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.4](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.3...v1.1.4) (2024-11-05)
+
+
+### Build System
+
+* **deps-dev:** bump @babel/core from 7.25.8 to 7.26.0 ([1d5afd1](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/1d5afd176a67418cb1b087ada2532c608b4af430))
+* **deps-dev:** bump @babel/eslint-parser from 7.25.8 to 7.25.9 ([fc95d88](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/fc95d88e77560803fb3b01ad23b1dc93df15ed55))
+* **deps-dev:** bump eslint-plugin-sonarjs from 2.0.3 to 2.0.4 ([38fa49a](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/38fa49acd6ae69be7e7b5841d32cf40c2141f6b0))
+* **deps-dev:** bump globals from 15.11.0 to 15.12.0 ([55d9d7e](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/55d9d7e1da588b5de605261311542f2cfc57794d))
+* **deps:** bump node from 22-alpine to 23-alpine ([7ce8f4d](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/7ce8f4dbd864c5e301f04e361742db7799052165))
+* **deps:** bump uuid from 10.0.0 to 11.0.2 ([b93bd1c](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/commit/b93bd1c93b1a6d3c88f4c638c4c366af5165e32c))
+
 ## [1.1.3](https://github.com/PetroVoronov/ecoflow-mqtt-to-svitlobot/compare/v1.1.2...v1.1.3) (2024-10-16)
 
 ### Build System
