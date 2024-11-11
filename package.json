@@ -16,7 +16,7 @@
     "axios": "^1.7.7",
     "enquirer": "^2.4.1",
     "json-stringify-safe": "^5.0.1",
-    "logform": "^2.6.1",
+    "logform": "^2.7.0",
     "mqtt": "^5.10.0",
     "node-localstorage": "^3.0.5",
     "strftime": "^0.10.3",
