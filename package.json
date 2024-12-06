@@ -13,7 +13,7 @@
   "author": "Petro Voronov <petro.voronov@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "enquirer": "^2.4.1",
     "json-stringify-safe": "^5.0.1",
     "logform": "^2.6.1",
